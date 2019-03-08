@@ -224,16 +224,16 @@ class SerialCamera(object):
 
 
 def update(serial_com, port, img_save_path):
-    cv2.namedWindow("serial_camera", cv2.WINDOW_FREERATIO)
+    #cv2.namedWindow("serial_camera", cv2.WINDOW_FREERATIO)
     sc = SerialCamera(serial_com)
     is_append = sc.main_serial_append_image(int(port), img_save_path)
     if is_append:
         origin_img = cv2.imread(img_save_path)
-        show_img = sc.add_logo(origin_img)
-        if isinstance(show_img, np.ndarray):
-            cv2.imwrite(img_save_path, show_img)
-            cv2.imshow("serial_camera", show_img)
-            cv2.waitKey(0)
+        #show_img = sc.add_logo(origin_img)
+        if isinstance(origin_img, np.ndarray):
+            cv2.imwrite(img_save_path, origin_img)
+            #cv2.imshow("serial_camera", show_img)
+            #cv2.waitKey(0)
         else:
             logger_script.info('||| Error serial add_logo {}!', exc_info=True)
     else:
