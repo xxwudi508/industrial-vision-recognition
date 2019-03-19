@@ -166,10 +166,10 @@ class SerialCamera(object):
         cmd = [0x56, no, 0x32, 0x0c, 0x00, 0x0a, 0x00, 0x00, (i & 0xff00) >> 8, (i & 0x00ff), 0x00, 0x00,
                (byteLen & 0xff00) >> 8, (byteLen & 0x00ff), 0x00, 0xff]
         self.port.write(cmd)
-        time.sleep(1)  # The time is serial receives data
-        j_count = math.ceil(byteLen / 4096)
+        time.sleep(20)  # The time is serial receives data,680 needs 15s+
+        j_count = math.ceil(byteLen / 512)
         while j < j_count:
-            re = self.port.read(4096)
+            re = self.port.read(512)
             if j == 0:
                 wf = open(filename, "wb")
                 wf.write(re[5:])
