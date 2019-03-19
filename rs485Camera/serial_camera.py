@@ -161,33 +161,37 @@ class SerialCamera(object):
         :param filename: image path
         :return: True or False
         '''
-        byteLen = int.from_bytes(img_len, byteorder='big', signed=False)
-        i, j = 0, 0
-        cmd = [0x56, no, 0x32, 0x0c, 0x00, 0x0a, 0x00, 0x00, (i & 0xff00) >> 8, (i & 0x00ff), 0x00, 0x00,
-               (byteLen & 0xff00) >> 8, (byteLen & 0x00ff), 0x00, 0xff]
-        self.port.write(cmd)
-        time.sleep(20)  # The time is serial receives data,680 needs 15s+
-        j_count = math.ceil(byteLen / 512)
-        while j < j_count:
-            re = self.port.read(512)
-            if j == 0:
-                wf = open(filename, "wb")
-                wf.write(re[5:])
-                wf.close()
-            elif j == j_count - 1:
-                wf = open(filename, "ab+")
-                wf.write(re[:-5])
-                wf.close()
+        try:
+            byteLen = int.from_bytes(img_len, byteorder='big', signed=False)
+            i, j = 0, 0
+            cmd = [0x56, no, 0x32, 0x0c, 0x00, 0x0a, 0x00, 0x00, (i & 0xff00) >> 8, (i & 0x00ff), 0x00, 0x00,
+                   (byteLen & 0xff00) >> 8, (byteLen & 0x00ff), 0x00, 0xff]
+            self.port.write(cmd)
+            time.sleep(20)  # The time is serial receives data,680 needs 15s+
+            j_count = math.ceil(byteLen / 512)
+            while j < j_count:
+                re = self.port.read(512)
+                if j == 0:
+                    wf = open(filename, "wb")
+                    wf.write(re[5:])
+                    wf.close()
+                elif j == j_count - 1:
+                    wf = open(filename, "ab+")
+                    wf.write(re[:-5])
+                    wf.close()
+                else:
+                    wf = open(filename, "ab+")
+                    wf.write(re)
+                    wf.close()
+                j += 1
+            image = cv2.imread(filename)
+            if image.shape[:2] == (480, 640):
+                return True
             else:
-                wf = open(filename, "ab+")
-                wf.write(re)
-                wf.close()
-            j += 1
-        image = cv2.imread(filename)
-        if image.shape[:2] == (480, 640):
-            return True
-        else:
-            logger_script.info('||| Error serial get_image!', exc_info=True)
+                logger_script.info('||| Error serial get_image!', exc_info=True)
+                return False
+        except :
+            print("[INFO] img data broken.")
             return False
 
     def main_serial_append_image(self, no, filename):
