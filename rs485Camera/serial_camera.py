@@ -168,29 +168,35 @@ class SerialCamera(object):
                    (byteLen & 0xff00) >> 8, (byteLen & 0x00ff), 0x00, 0xff]
             self.port.write(cmd)
             time.sleep(20)  # The time is serial receives data,680 needs 15s+
-            j_count = math.ceil(byteLen / 512)
-            while j < j_count:
-                re = self.port.read(512)
-                if j == 0:
-                    wf = open(filename, "wb")
-                    wf.write(re[5:])
-                    wf.close()
-                elif j == j_count - 1:
-                    wf = open(filename, "ab+")
-                    wf.write(re[:-5])
-                    wf.close()
-                else:
-                    wf = open(filename, "ab+")
-                    wf.write(re)
-                    wf.close()
-                j += 1
+            re = self.port.read(byteLen + 50)
+            wf = open(filename, "wb")
+            wf.write(re[5:-5])
+            wf.close()
+            time.sleep(1)
             image = cv2.imread(filename)
-            if image.shape[:2] == (480, 640):
+            # j_count = math.ceil(byteLen / 512)
+            # while j < j_count:
+            #     re = self.port.read(512)
+            #     if j == 0:
+            #         wf = open(filename, "wb")
+            #         wf.write(re[5:])
+            #         wf.close()
+            #     elif j == j_count - 1:
+            #         wf = open(filename, "ab+")
+            #         wf.write(re[:-5])
+            #         wf.close()
+            #     else:
+            #         wf = open(filename, "ab+")
+            #         wf.write(re)
+            #         wf.close()
+            #     j += 1
+            # image = cv2.imread(filename)
+            if isinstance(image, np.ndarray):
                 return True
             else:
                 logger_script.info('||| Error serial get_image!', exc_info=True)
                 return False
-        except :
+        except:
             print("[INFO] img data broken.")
             return False
 
@@ -228,16 +234,16 @@ class SerialCamera(object):
 
 
 def update(serial_com, port, img_save_path):
-    #cv2.namedWindow("serial_camera", cv2.WINDOW_FREERATIO)
+    # cv2.namedWindow("serial_camera", cv2.WINDOW_FREERATIO)
     sc = SerialCamera(serial_com)
     is_append = sc.main_serial_append_image(int(port), img_save_path)
     if is_append:
         origin_img = cv2.imread(img_save_path)
-        #show_img = sc.add_logo(origin_img)
+        # show_img = sc.add_logo(origin_img)
         if isinstance(origin_img, np.ndarray):
             cv2.imwrite(img_save_path, origin_img)
-            #cv2.imshow("serial_camera", show_img)
-            #cv2.waitKey(0)
+            # cv2.imshow("serial_camera", show_img)
+            # cv2.waitKey(0)
         else:
             logger_script.info('||| Error serial add_logo {}!', exc_info=True)
     else:
