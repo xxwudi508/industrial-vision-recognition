@@ -236,6 +236,8 @@ class SerialCamera(object):
 def update(serial_com, port, img_save_path):
     # cv2.namedWindow("serial_camera", cv2.WINDOW_FREERATIO)
     sc = SerialCamera(serial_com)
+    # set_buffer_size 设置缓冲区后就不会出现掉帧的问题，但由于这个方法是win32使用的，所有liunx下还没找到解决掉帧的办法
+    # sc.port.set_buffer_size(60000,60000)
     is_append = sc.main_serial_append_image(int(port), img_save_path)
     if is_append:
         origin_img = cv2.imread(img_save_path)
