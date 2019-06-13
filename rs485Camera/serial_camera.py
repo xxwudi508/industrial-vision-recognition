@@ -5,6 +5,18 @@ import logging
 import numpy as np
 import argparse
 
+'''
+A serial camera protocol to get image
+ 
+Environment : Ubuntu18.04+python3.6+
+
+Access protocol : RS485
+
+Run: python3 serial_camera.py --com ttyUSB0 --port 0 --img test.jpg
+
+Development : jeffa
+'''
+
 logger_script = logging.getLogger(__name__)
 logger_script.setLevel(level=logging.DEBUG)
 
